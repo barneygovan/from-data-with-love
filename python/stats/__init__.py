@@ -1,0 +1,4 @@
+ 
+
+class SingularMatrixError(ValueError):
+    pass
