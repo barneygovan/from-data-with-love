@@ -7,6 +7,13 @@ import math
 from stats import SingularMatrixError
 
 def dmvnorm(data, mu=None, sigma=None):
+    '''
+    Evaluates the multivariate normal distribution for each of the observations supplied.
+    
+    :attr:`data` is a n x p numpy array, where n= number of observations, and p=number of variables.  This array contains the observations.
+    :attr:`mu` is a numpy array of length p.  This array contains the mean of the multivariate normal distribution.  Default is [0,0]
+    :attr:`sigma` is a p x p numpy array.  This array contains the covariance matrix for the multivariate normal.  Default is [[1,0],[0,1]].
+    '''
     if data is None:
         raise ValueError('No data supplied')    
     num_observations = data.shape[0]
@@ -36,6 +43,15 @@ def dmvnorm(data, mu=None, sigma=None):
     return norm_const * np.power(math.e, -0.5 * exponent)
 
 def rwish(shape, scale, samples=1):
+    '''
+    Generate random samples from Wishart distribution.  Based on rwish() in the MCMCpack R package.
+    That package is licensed under GPL-v3 and can be found:
+    http://cran.r-project.org/web/packages/MCMCpack/index.html
+    
+    :attr:`shape` is the shape parameter, a real number.
+    :attr:`scale` is the scale parameter, a square matrix whose dimensions must not be greater than the shape parameter
+    :attr:`samples` is the number of random samples to return
+    '''
     if len(scale.shape) != 2:
         if scale.shape[0] != 1:
             raise ValueError('Scale parameter must be a 2-D matrix')
@@ -43,7 +59,7 @@ def rwish(shape, scale, samples=1):
         raise ValueError('Scale parameter must be a square matrix')
     
     p = scale.shape[0]
-    if shape < p-1:
+    if shape < p:
         raise ValueError('Shape parameter must be equal to or greater than the number of dimensions.')
     
     chol = la.cholesky(scale)
