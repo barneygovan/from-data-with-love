@@ -6,6 +6,6 @@ This is a collection of code and utilities that I have developed whilst playing 
 
 Requirements:
 -------------------------------------
-numpy
-matplotlib
-nose (for unit tests)
+* numpy
+* matplotlib
+* nose (for unit tests)
