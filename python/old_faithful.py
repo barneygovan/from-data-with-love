@@ -4,6 +4,7 @@ import argparse
 import csv
 
 import faithful.bayesfmm as fmm
+from faithful import ida
 from stats import diagnostics
 
 def main(filename,iterations,saveDiagnostics,outputDir,burnin):
@@ -16,7 +17,12 @@ def main(filename,iterations,saveDiagnostics,outputDir,burnin):
             waiting_time = float(line[1])
             data.append([eruption_time,waiting_time])
     
-    #build model
+    #generate ida images
+    ida.scatter_plot(data,'%s/faithful_ida_scatter.png' % outputDir)
+    ida.histogram(data,'%s/faithful_ida_hist.png' % outputDir)
+    ida.linear_regression(data, '%s/faithful_ida_regression.png' % outputDir)
+    
+    #build fmm model
     gaussian_fmm = fmm.GaussianFiniteMixtureModel()
     pi,theta,sigma = gaussian_fmm.run(data,k=2,iterations=iterations)
     
