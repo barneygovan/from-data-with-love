@@ -8,4 +8,5 @@ Requirements:
 -------------------------------------
 * numpy
 * matplotlib
+* scikit-learn
 * nose (for unit tests)
