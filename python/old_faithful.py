@@ -4,8 +4,8 @@ import argparse
 import csv
 
 import faithful.bayesfmm as fmm
-from faithful import ida
-from stats import diagnostics
+from faithful import ida, clustering
+from stats import diagnostics, utils
 
 def main(filename,iterations,saveDiagnostics,outputDir,burnin):
     data = []
@@ -16,11 +16,20 @@ def main(filename,iterations,saveDiagnostics,outputDir,burnin):
             eruption_time = float(line[0])
             waiting_time = float(line[1])
             data.append([eruption_time,waiting_time])
-    
+
     #generate ida images
     ida.scatter_plot(data,'%s/faithful_ida_scatter.png' % outputDir)
     ida.histogram(data,'%s/faithful_ida_hist.png' % outputDir)
     ida.linear_regression(data, '%s/faithful_ida_regression.png' % outputDir)
+    
+    #clustering
+    clustering.plot_kmeans(data,filename='%s/faithful_kmeans_k2.png' % outputDir)
+    clustering.plot_kmeans(data,ks=(6,),filename='%s/faithful_kmeans_k6.png' % outputDir)
+    # train and test data
+    data_train,data_test = utils.split_data(data,train_split=0.8)
+    [kmeans_model_2,kmeans_model_6] = clustering.plot_kmeans(data_train,ks=(2,6),suppress_output=True)
+    clustering.kmeans_predict(data_test,kmeans_model_2,filename='%s/faithful_kmeans_k2_predict.png' % outputDir)
+    clustering.kmeans_predict(data_test,kmeans_model_6,filename='%s/faithful_kmeans_k6_predict.png' % outputDir)
     
     #build fmm model
     gaussian_fmm = fmm.GaussianFiniteMixtureModel()
