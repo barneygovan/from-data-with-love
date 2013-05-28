@@ -21,13 +21,16 @@ def get_axis(axes,index,number_of_figures,num_rows,num_cols):
         
     return axis
     
-def plot_clusters(axis,data,k,labels,centroids):
+def plot_clusters(axis,data,k,labels,centroids,alpha=None):
     for i in range(k):
         ds = data[np.where(labels==i)]
-        axis.plot(ds[:,0],ds[:,1],'o')
-        lines = axis.plot(centroids[i,0],centroids[i,1],'kx')
-        pyplot.setp(lines,ms=15.0)
-        pyplot.setp(lines,mew=2.0)
+        dots = axis.plot(ds[:,0],ds[:,1],'o')
+        xs = axis.plot(centroids[i,0],centroids[i,1],'kx')
+        pyplot.setp(xs,ms=15.0)
+        pyplot.setp(xs,mew=2.0)
+        if alpha:
+            pyplot.setp(dots,alpha=alpha)
+            pyplot.setp(xs,alpha=alpha)
         
 
 def kmeans_predict(data,kmeans,filename=None):
@@ -111,4 +114,3 @@ def plot_kmeans(data,ks=(2,),filename=None,suppress_output=False):
 
     return kmeans_models
    
-    
