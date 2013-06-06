@@ -32,8 +32,9 @@ def main(filename,iterations,saveDiagnostics,outputDir,burnin):
     clustering.kmeans_predict(data_test,kmeans_model_6,filename='%s/faithful_kmeans_k6_predict.png' % outputDir)
     
     #expectation-maximization
-    theta,sigma,pi = em.gaussian_em_2(data,reps=25)
+    theta,sigma,pi = em.gaussian_em_2(data,max_reps=100)
     em.plot_against_kmeans(data,theta,km2,filename='%s/faithful_em_kmeans.png' % outputDir)
+    em.draw_contour_plots(theta[-1],sigma[-1],pi[-1],filename='%s/faithful_em_model.png' % outputDir)
     
     #build fmm model
     gaussian_fmm = fmm.GaussianFiniteMixtureModel()
