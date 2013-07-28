@@ -8,7 +8,7 @@ from stats.distributions import dmvnorm, rwish
 
 class GaussianFiniteMixtureModel(object):
     
-    def __init__(self, alpha=2.0, g=0.2, delta=1):
+    def __init__(self, alpha=3.0, g=0.3, delta=1):
         self.__alpha = alpha
         self.__g = g
         self.__delta = delta
