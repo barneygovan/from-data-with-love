@@ -66,15 +66,15 @@ def main(filename, iterations, save_diagnostics, output_dir, burnin):
             data.append([float(eruption_time), float(waiting_time)])
 
     #generate ida images
-    #ida.scatter_plot(data, '{0}/faithful_ida_scatter.png'.format(output_dir))
-    #ida.histogram(data, '{0}/faithful_ida_hist.png'.format(output_dir))
-    #ida.linear_regression(data, '{0}/faithful_ida_regression.png'.format(output_dir))
+    ida.scatter_plot(data, '{0}/faithful_ida_scatter.png'.format(output_dir))
+    ida.histogram(data, '{0}/faithful_ida_hist.png'.format(output_dir))
+    ida.linear_regression(data, '{0}/faithful_ida_regression.png'.format(output_dir))
 
     #clustering
     km2 = __run_clustering(data, output_dir)
 
     #expectation-maximization
-    #__run_em(data, output_dir, km2)
+    __run_em(data, output_dir, km2)
 
     #build bayes fmm model
     __run_bayesfmm(data, iterations, save_diagnostics, output_dir, burnin, km2)
