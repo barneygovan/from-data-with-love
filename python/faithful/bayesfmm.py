@@ -128,4 +128,4 @@ def draw_contour_plots(pi, mu, sigma, filename=None):
         fig.savefig(filename)
     else:
         pyplot.show()
-
+        
