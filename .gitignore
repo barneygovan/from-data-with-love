@@ -3,3 +3,5 @@
 *.pyc
 output/
 .directory
+*.pickle
+*.pgn
