@@ -17,7 +17,11 @@ def main(data_file_name, iterations, output_dir, min_elo, p_in, p_out, burnin):
 
     labels = detector.run(graph, iterations=iterations)
 
-    assert len(labels) == iterations
+    assert len(labels) == iterations + 1
+
+    chosen_index, communities = CommunityDetector.estimate_partitions(labels, burnin=burnin)
+    graph.communities = communities
+    graph.render_community_graph(show_single_nodes=False)
 
     return 0
 

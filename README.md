@@ -27,6 +27,7 @@ To Run the Code:
 -------------------------------------
 ### Old Faithful
 `python old_faithful.py ../data/faithful.csv`
+
 There are also other command line options:
 * --iterations: Number of iterations for the Gibbs sampler (default 500)
 * --save_diagnostics: Whether to save the diagnostic images (default False)
@@ -35,9 +36,13 @@ There are also other command line options:
 
 ### Chess Social
 To download the TWIC chess dataset:
+
 `python twic_scrape.py`
+
 To run using the downloaded TWIC chess dataset:
+
 `python run_community_detection.py path/to/twic_chess_data.pgn`
+
 There are also other command line options:
 * --iterations: Number of iterations for the Gibbs sampler (default 100)
 * --output_dir: The directory to save the images to (default '.')

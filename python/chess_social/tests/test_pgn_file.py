@@ -1,10 +1,9 @@
+
 from __future__ import print_function
 
 import unittest
-import re
 import mock
 from mock import MagicMock
-from StringIO import StringIO
 
 from chess_social.pgn_file import PgnFile
 
@@ -130,39 +129,42 @@ class PgnFileTest(unittest.TestCase):
                 results.append(game)
 
         expected_game_1 = {'black': "Giri,A",
-                           'black_id': 24116068,
-                           'black_elo': 2734,
+                           'black_id': '24116068',
+                           'black_elo': '2734',
                            'black_title': 'GM',
                            'white': "Dominguez Perez,L",
-                           'white_id': 3503240,
-                           'white_elo': 2754,
+                           'white_id': '3503240',
+                           'white_elo': '2754',
                            'white_title': 'GM',}
-        # expected_game_2 = {'black': "Giri,A",
-        #                    'black_id': 24116068,
-        #                    'black_elo': 2734,
-        #                    'black_title': 'GM',
-        #                    'white': "",
-        #                    'white_id': ,
-        #                    'white_elo': ,
-        #                    'white_title': 'GM',}
-        # expected_game_3 = {'black': "Giri,A",
-        #                    'black_id': 24116068,
-        #                    'black_elo': 2734,
-        #                    'black_title': 'GM',
-        #                    'white': "",
-        #                    'white_id': ,
-        #                    'white_elo': ,
-        #                    'white_title': 'GM',}
-        # expected_game_4 = {'black': "Giri,A",
-        #                    'black_id': 24116068,
-        #                    'black_elo': 2734,
-        #                    'black_title': 'GM',
-        #                    'white': "",
-        #                    'white_id': ,
-        #                    'white_elo': ,
-        #                    'white_title': 'GM',}
 
-        expected_results = [expected_game_1, ]
+        expected_game_2 = {'black': "Karjakin,Sergey",
+                           'black_id': '14109603',
+                           'black_elo': '2759',
+                           'black_title': 'GM',
+                           'white': "Van Wely,L",
+                           'white_id': '1000268',
+                           'white_elo': '2672',
+                           'white_title': 'GM',}
+
+        expected_game_3 = {'black': "Aronian,L",
+                           'black_id': '13300474',
+                           'black_elo': '2812',
+                           'black_title': 'GM',
+                           'white': "Harikrishna,P",
+                           'white_id': '5007003',
+                           'white_elo': '2706',
+                           'white_title': 'GM',}
+
+        expected_game_4 = {'black': "Gelfand,B",
+                           'black_id': '2805677',
+                           'black_elo': '2777',
+                           'black_title': 'GM',
+                           'white': "Caruana,F",
+                           'white_id': '2020009',
+                           'white_elo': '2782',
+                           'white_title': 'GM',}
+
+        expected_results = [expected_game_1, expected_game_2, expected_game_3, expected_game_4]
 
         self.assertEqual(expected_results, results)
 

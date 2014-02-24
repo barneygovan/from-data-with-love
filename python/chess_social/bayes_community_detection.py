@@ -171,8 +171,26 @@ class CommunityDetector(object):
 
         return labels
 
-    def estimate_partitions(self, labels, burnin=0):
-        pass
+    @staticmethod
+    def estimate_partitions(labels, burnin=0):
+        #calculate empirical probabilities that c_i == c_j
+        emp_prob = {}
+        iterations, nodes = labels.shape
+        iterations = iterations - burnin
+        for i in range(nodes):
+            for j in range(i+1, nodes):
+                emp_prob[(i, j)] = np.sum(labels[burnin:, i] == labels[burnin:, j]) / iterations
+
+        posterior_risk = np.zeros(iterations)
+        for k, iteration in enumerate(labels[burnin:]):
+            for i in range(len(iteration)):
+                for j in range(i + 1, len(iteration)):
+                    if iteration[i] == iteration[j]:
+                        posterior_risk[k] += emp_prob[(i, j)] - 0.5
+
+        index = np.where(posterior_risk == np.amax(posterior_risk))[0][0] + burnin
+        return index, labels[index]
+
 
     def __unicode__(self):
         return r'[INIT: {0}, {1}, {2}, {3}, {4}, {5}]'.format(self.__a_in,
