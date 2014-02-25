@@ -71,6 +71,61 @@ class CommunityDetector(object):
 
         return community_count, edges_in, node_pairs_in, edges_out, node_pairs_out
 
+    def __update_p(self, i, edges_in, node_pairs_in, edges_out, node_pairs_out, p_in, p_out):
+        p_in_tmp = npr.beta(edges_in + self.__a_in, node_pairs_in + self.__b_in)
+        if p_in_tmp > p_out[i-1]:
+            p_in[i] = p_in_tmp
+        else:
+            p_in[i] = p_in[i-1]
+        #update p_out, given p_in, pi, and alpha, with constraint that p_out < p_in
+        p_out_tmp = npr.beta(edges_out + self.__a_out, node_pairs_out + self.__b_out)
+        if p_out_tmp < p_in[i]:
+            p_out[i] = p_out_tmp
+        else:
+            p_out[i] = p_out[i-1]
+
+    @staticmethod
+    def __update_labels_for_node_i(labels, graph, i, community_count, p_in, p_out):
+        player_communities = labels[i-1].copy()
+        for j, player in enumerate(graph.nodes):
+            c_count = community_count.copy()
+            table_size = c_count[player.community]
+            if table_size <= 1:
+                del c_count[player.community]
+            else:
+                c_count[player.community] = table_size - 1
+            sorted_labels = sorted(c_count.iterkeys())
+            _, probabilities = np.array(zip(*sorted(c_count.iteritems(),
+                                                    key=operator.itemgetter(0))),
+                                        dtype=np.float64)
+            for k, label in enumerate(sorted_labels):
+                for node in graph.nodes:
+                    if node == player:
+                        continue
+                    p_ij = p_out[i]
+                    if label == node.community:
+                        p_ij = p_in[i]
+                    game = ChessGame(player.fide_id, node.fide_id)
+                    if graph.adjacency_matrix.get(game, 0):
+                        probabilities[k] *= p_ij
+                    else:
+                        probabilities[k] *= (1 - p_ij)
+            # sample new label
+            the_sum = np.sum(probabilities)
+            rnd_unif = npr.uniform()
+            cumulative = np.cumsum(probabilities/the_sum)
+            # print(cumulative)
+            sample_index = np.where(cumulative >= rnd_unif)[0][0]
+            new_label = sorted_labels[sample_index]
+            player_communities[j] = new_label
+
+        #append new labels to our collection of labels from previous iterations
+        labels = np.vstack([labels, player_communities])
+        #update graph with current label set
+        graph.communities = player_communities
+
+        return labels
+
     def __calculate_alpha(self, graph, alpha_prev):
         '''Picks alpha from a mixture of 2 gamma distributions'''
         num_communities = graph.number_of_communities
@@ -84,7 +139,6 @@ class CommunityDetector(object):
                                           (num_players * inv_mixture_scale)):
             return npr.gamma(self.__gamma_a + num_communities, mixture_scale)
         return npr.gamma(self.__gamma_a + num_communities - 1, mixture_scale)
-
 
     def run(self, graph, start_labels=None, iterations=100):
         #1. initialize labels in graph
@@ -111,60 +165,19 @@ class CommunityDetector(object):
 
             print('{0}  Number of Communities: {1}; Number of Edges In: {2}; '
                 'Number of Edges Out: {3}'.format(
-                    datetime.datetime.strftime(datetime.datetime.now()),
+                    datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S'),
                     len(community_count), edges_in, edges_out))
 
             #first update p_in, given p_out, pi, and alpha, with constraint that p_in > p_out
-            p_in_tmp = npr.beta(edges_in + self.__a_in, node_pairs_in + self.__b_in)
-            if p_in_tmp > p_out[i-1]:
-                p_in[i] = p_in_tmp
-            else:
-                p_in[i] = p_in[i-1]
-            #update p_out, given p_in, pi, and alpha, with constraint that p_out < p_in
-            p_out_tmp = npr.beta(edges_out + self.__a_out, node_pairs_out + self.__b_out)
-            if p_out_tmp < p_in[i]:
-                p_out[i] = p_out_tmp
-            else:
-                p_out[i] = p_out[i-1]
+            self.__update_p(i, edges_in, node_pairs_in, edges_out, node_pairs_out, p_in, p_out)
 
             #update all the labels on each node
-            player_communities = labels[i-1].copy()
-            for j, player in enumerate(graph.nodes):
-                c_count = community_count.copy()
-                table_size = c_count[player.community]
-                if table_size <= 1:
-                    del c_count[player.community]
-                else:
-                    c_count[player.community] = table_size - 1
-                sorted_labels = sorted(c_count.iterkeys())
-                _, probabilities = np.array(zip(*sorted(c_count.iteritems(),
-                                                        key=operator.itemgetter(0))),
-                                            dtype=np.float64)
-                for k, label in enumerate(sorted_labels):
-                    for node in graph.nodes:
-                        if node == player:
-                            continue
-                        p_ij = p_out[i]
-                        if label == node.community:
-                            p_ij = p_in[i]
-                        game = ChessGame(player.fide_id, node.fide_id)
-                        if graph.adjacency_matrix.get(game, 0):
-                            probabilities[k] *= p_ij
-                        else:
-                            probabilities[k] *= (1 - p_ij)
-                # sample new label
-                the_sum = np.sum(probabilities)
-                rnd_unif = npr.uniform()
-                cumulative = np.cumsum(probabilities/the_sum)
-                # print(cumulative)
-                sample_index = np.where(cumulative >= rnd_unif)[0][0]
-                new_label = sorted_labels[sample_index]
-                player_communities[j] = new_label
-
-            #append new labels to our collection of labels from previous iterations
-            labels = np.vstack([labels, player_communities])
-            #update graph with current label set
-            graph.communities = player_communities
+            labels = CommunityDetector.__update_labels_for_node_i(labels,
+                                                                  graph,
+                                                                  i,
+                                                                  community_count,
+                                                                  p_in,
+                                                                  p_out)
 
             #update alpha
             alpha[i] = self.__calculate_alpha(graph, alpha[i-1])

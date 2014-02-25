@@ -215,15 +215,14 @@ class ChessGraph(object):
             if node.fide_id in added_nodes:
                 graph.node[node.fide_id]['elo_rank'] = math.floor(node.elo/100) * 100
 
-        color_value_map = {
-            2500.0: 1.0,
-            2600.0: 0.6,
-            2700.0: 0.3,
-            2800.0: 0.0
-        }
+        min_val = self.__min_elo
+        max_val = 2900
+        elo_levels = range(min_val, max_val, 100)
+        color_levels = np.linspace(1, 0, num=len(elo_levels), endpoint=True)
+        color_value_map = {elo: color for (elo, color) in zip(elo_levels, color_levels)}
         color_values = [color_value_map.get(graph.node[n]['elo_rank'], 0.0) for n in graph.nodes()]
 
         nx.draw_graphviz(graph, cmap=pylab.get_cmap('jet'), node_color=color_values,
-                         node_size=150)
+                         node_size=100)
 
 
