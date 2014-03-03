@@ -77,7 +77,7 @@ class CommunityDetector(object):
             p_in[i] = p_in_tmp
         else:
             p_in[i] = p_in[i-1]
-        #update p_out, given p_in, pi, and alpha, with constraint that p_out < p_in
+        #update p_out with constraint that p_out < p_in
         p_out_tmp = npr.beta(edges_out + self.__a_out, node_pairs_out + self.__b_out)
         if p_out_tmp < p_in[i]:
             p_out[i] = p_out_tmp
@@ -85,7 +85,7 @@ class CommunityDetector(object):
             p_out[i] = p_out[i-1]
 
     @staticmethod
-    def __update_labels_for_node_i(labels, graph, i, community_count, p_in, p_out):
+    def __update_labels_for_node_i(labels, graph, i, community_count, p_in, p_out, alpha):
         player_communities = labels[i-1].copy()
         for j, player in enumerate(graph.nodes):
             c_count = community_count.copy()
@@ -95,9 +95,13 @@ class CommunityDetector(object):
             else:
                 c_count[player.community] = table_size - 1
             sorted_labels = sorted(c_count.iterkeys())
+            #append extra label to the end
+            sorted_labels.append(labels.max() + 1)
             _, probabilities = np.array(zip(*sorted(c_count.iteritems(),
                                                     key=operator.itemgetter(0))),
                                         dtype=np.float64)
+            #append probability for new label
+            probabilities = np.append(probabilities, alpha[i-1])
             for k, label in enumerate(sorted_labels):
                 for node in graph.nodes:
                     if node == player:
@@ -163,10 +167,10 @@ class CommunityDetector(object):
             (community_count, edges_in, node_pairs_in,
                 edges_out, node_pairs_out) = CommunityDetector.__edge_count(graph)
 
-            print('{0}  Number of Communities: {1}; Number of Edges In: {2}; '
-                'Number of Edges Out: {3}'.format(
+            print('{0}  Iteration: {1}; Number of Communities: {2}; Number of Edges In: {3}; '
+                'Number of Edges Out: {4}'.format(
                     datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S'),
-                    len(community_count), edges_in, edges_out))
+                    i, len(community_count), edges_in, edges_out))
 
             #first update p_in, given p_out, pi, and alpha, with constraint that p_in > p_out
             self.__update_p(i, edges_in, node_pairs_in, edges_out, node_pairs_out, p_in, p_out)
@@ -177,7 +181,8 @@ class CommunityDetector(object):
                                                                   i,
                                                                   community_count,
                                                                   p_in,
-                                                                  p_out)
+                                                                  p_out,
+                                                                  alpha)
 
             #update alpha
             alpha[i] = self.__calculate_alpha(graph, alpha[i-1])

@@ -191,7 +191,8 @@ class ChessGraph(object):
         color_value_map = {elo: color for (elo, color) in zip(elo_levels, color_levels)}
         color_values = [color_value_map.get(graph.node[n]['elo_rank'], 0.0) for n in graph.nodes()]
 
-        nx.draw_graphviz(graph, cmap=pylab.get_cmap('jet'), node_color=color_values)
+        nx.draw_graphviz(graph, cmap=pylab.get_cmap('jet'), node_color=color_values,
+                         node_size=100)
 
     def render_community_graph(self, show_single_nodes=True):
         added_nodes = set()
@@ -224,5 +225,3 @@ class ChessGraph(object):
 
         nx.draw_graphviz(graph, cmap=pylab.get_cmap('jet'), node_color=color_values,
                          node_size=100)
-
-
